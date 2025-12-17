@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb-local
+    ports:
+      - "8002:8000"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: url_shortener_app
+    container_name: url-shortener-app
+    environment:
+      TABLE_NAME: urls
+      AWS_ACCESS_KEY_ID: dummy
+      AWS_SECRET_ACCESS_KEY: dummy
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL_DYNAMODB: http://dynamodb:8000
+    ports:
+      - "8001:8000"
+    depends_on:
+      - dynamodb

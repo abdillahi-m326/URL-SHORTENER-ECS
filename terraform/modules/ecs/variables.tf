@@ -11,13 +11,13 @@ variable "aws_region" {
 variable "cluster_name" {
   description = "Name of ECS cluster"
   type        = string
-  default     = "react_app_cluster"
+  default     = "url_shortener_app_cluster"
 }
 
 variable "ecs_service_name" {
   description = "Name of the ECS service"
   type        = string
-  default     = "ecs_react_service"
+  default     = "url_shortener_ecs_service"
 }
 
 variable "desired_count" {

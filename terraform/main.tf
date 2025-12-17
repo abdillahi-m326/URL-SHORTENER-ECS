@@ -9,6 +9,7 @@ module "vpc" {
   public_subnet_cidrs  = var.public_subnet_cidrs
   private_subnet_cidrs = var.private_subnet_cidrs
   tags                 = var.tags
+
 }
 module "alb" {
   source             = "./modules/alb"
@@ -77,11 +78,11 @@ module "targetgroup" {
 }
 
 resource "aws_cloudwatch_log_group" "ecs_app" {
-  name              = "/ecs/react_app"
+  name              = "/ecs/url_shortener_app"
   retention_in_days = 7
 
   tags = {
-    Name        = "${var.name_prefix}-ecs-react-app-logs"
+    Name        = "${var.name_prefix}-url-shortener-app-logs"
     Environment = var.tags["Environment"]
   }
 }
@@ -92,8 +93,8 @@ module "ecs" {
   name_prefix = var.name_prefix
   aws_region  = var.aws_region
 
-  cluster_name     = "react_app_cluster"
-  ecs_service_name = "ecs_react_service"
+  cluster_name     = "url_shortener_cluster"
+  ecs_service_name = "url_shortener_ecs_service"
   desired_count    = 2
 
   subnet_ids = module.vpc.private_subnet_ids
@@ -102,18 +103,18 @@ module "ecs" {
 
   target_group_arn = module.targetgroup.target_group_arn
 
-  task_family    = "react_app_task"
+  task_family    = "url_shortener_task"
   task_cpu       = 1024
   task_memory    = 2048
-  container_name = "react_app_container"
+  container_name = "url_shortener"
   container_port = 80
 
 
-  container_image = "amdocker32695/ecs_proj_reacr_app:latest"
+  container_image = "210678020643.dkr.ecr.us-east-1.amazonaws.com/url_shortener_app:latest"
 
   ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
 
-  log_group_name = "/ecs/react_app"
+  log_group_name = "/ecs/url_shortener_app"
 
   depends_on = [
     aws_cloudwatch_log_group.ecs_app

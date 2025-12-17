@@ -36,6 +36,11 @@ resource "aws_ecs_task_definition" "task" {
           awslogs-stream-prefix = "ecs"
         }
       }
+
+      environment = [
+        { name = "TABLE_NAME", value = "urls" },
+        { name = "AWS_REGION", value = var.aws_region }
+      ]
     }
   ])
 }

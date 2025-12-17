@@ -84,7 +84,7 @@ resource "aws_route_table_association" "public_association2" {
 }
 
 ############################################
-# PRIVATE SUBNETS + NAT + PRIVATE ROUTING
+# PRIVATE SUBNETS + END POINTS + PRIVATE ROUTING
 ############################################
 resource "aws_subnet" "private_subnet1" {
   vpc_id                  = aws_vpc.vpc.id
@@ -114,37 +114,17 @@ resource "aws_subnet" "private_subnet2" {
   )
 }
 
-resource "aws_eip" "nat" {
-  domain = "vpc"
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.name_prefix}-nat-eip"
-    }
-  )
+resource "aws_vpc_endpoint" "dynamodb" {
+  vpc_id            = aws_vpc.vpc.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.private_route_table.id]
 }
 
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.allocation_id
-  subnet_id     = aws_subnet.public_subnet1.id
-  depends_on    = [aws_internet_gateway.igw]
-
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.name_prefix}-nat-gateway"
-    }
-  )
-}
+data "aws_region" "current" {}
 
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.vpc.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat.id
-  }
 
   tags = merge(
     var.tags,

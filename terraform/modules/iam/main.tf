@@ -33,6 +33,32 @@ resource "aws_iam_role_policy_attachment" "task_policy_attachments" {
   policy_arn = each.value
 }
 
+resource "aws_iam_role_policy" "dynamodb_inline_policy" {
+  role = aws_iam_role.task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem"
+      ],
+      Resource = aws_dynamodb_table.urls.arn,
+      Condition = {
+        StringEquals = {
+          "aws:SourceVpce" = aws_vpc_endpoint.dynamodb.id
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "dynamodb_inline_policy_attachment" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_role_policy.dynamodb_inline_policy.arn
+}
+
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = local.execution_role_name
 

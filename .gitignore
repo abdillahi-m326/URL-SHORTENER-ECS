@@ -1,12 +1,31 @@
+# Environment / OS
 .env
 .DS_Store
 
+# Python
 __pycache__/
 .venv/
 *.pyc
 *.out
-.plan
+
 # Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
+*.tfplan
+.plan
+terraform.tfvars
+*.auto.tfvars
+
+# Terraform bootstrap local state
+terraform/bootstrap/*.tfstate
+terraform/bootstrap/*.tfstate.*
+
+# Terraform crash logs
+crash.log
+crash.*.log
+
+# Editors
+.idea/
+.vscode/
+*.swp

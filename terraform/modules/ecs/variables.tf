@@ -36,8 +36,8 @@ variable "tasks_security_group_id" {
   type        = string
 }
 
-variable "target_group_arn" {
-  description = "ARN of the ALB Target Group"
+variable "target_group_blue_arn" {
+  description = "ARN of the BLUE target group (initial attachment)"
   type        = string
 }
 

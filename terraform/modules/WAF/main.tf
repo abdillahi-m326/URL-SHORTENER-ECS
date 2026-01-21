@@ -1,15 +1,22 @@
+############################
+# CloudWatch Logs for WAF
+############################
 resource "aws_cloudwatch_log_group" "waf_logs" {
-  name              = "/aws/waf/web-acl"
+  count             = var.enabled && var.enable_logging ? 1 : 0
+  name              = "/aws/waf/${var.name_prefix}-web-acl"
   retention_in_days = 30
 
-  tags = {
-    Environment = "Production"
-    Name        = "waf-logs"
-  }
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}-waf-logs"
+  })
 }
 
+############################
+# WAF Web ACL
+############################
 resource "aws_wafv2_web_acl" "waf_rules" {
-  name        = "waf_rules"
+  count       = var.enabled ? 1 : 0
+  name        = "${var.name_prefix}-waf"
   description = "Managed WAF rules for ALB"
   scope       = "REGIONAL"
 
@@ -27,7 +34,7 @@ resource "aws_wafv2_web_acl" "waf_rules" {
 
     statement {
       rate_based_statement {
-        limit              = 10000
+        limit              = var.rate_limit
         aggregate_key_type = "IP"
       }
     }
@@ -63,25 +70,32 @@ resource "aws_wafv2_web_acl" "waf_rules" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "WebACL"
+    metric_name                = "${var.name_prefix}-web-acl"
     sampled_requests_enabled   = true
   }
 
-  tags = {
-    Environment = "Production"
-    Name        = "webACL"
-  }
+  tags = merge(var.tags, {
+    Name = "${var.name_prefix}-web-acl"
+  })
 }
 
+############################
+# WAF Logging Configuration
+############################
 resource "aws_wafv2_web_acl_logging_configuration" "waf_logging" {
-  resource_arn = aws_wafv2_web_acl.waf_rules.arn
+  count        = var.enabled && var.enable_logging ? 1 : 0
+  resource_arn = aws_wafv2_web_acl.waf_rules[0].arn
 
   log_destination_configs = [
-    aws_cloudwatch_log_group.waf_logs.arn
+    "${aws_cloudwatch_log_group.waf_logs[0].arn}:*"
   ]
 }
 
+############################
+# Associate WAF with ALB
+############################
 resource "aws_wafv2_web_acl_association" "alb_association" {
-  resource_arn = aws_alb.load_balancer.arn
-  web_acl_arn  = aws_wafv2_web_acl.waf_rules.arn
+  count        = var.enabled ? 1 : 0
+  resource_arn = var.alb_arn
+  web_acl_arn  = aws_wafv2_web_acl.waf_rules[0].arn
 }

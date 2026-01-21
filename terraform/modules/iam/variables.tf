@@ -46,3 +46,28 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "codedeploy_role_name" {
+  type        = string
+  description = "Optional override for CodeDeploy role name"
+  default     = null
+}
+
+variable "enable_dynamodb_policy" {
+  description = "Whether to attach DynamoDB inline policy"
+  type        = bool
+  default     = false
+}
+
+variable "dynamodb_table_arn" {
+  description = "DynamoDB table ARN"
+  type        = string
+  default     = null
+}
+
+variable "dynamodb_vpc_endpoint_id" {
+  description = "VPC endpoint ID for DynamoDB"
+  type        = string
+  default     = null
+}
+

@@ -1,14 +1,5 @@
-output "target_group_arn" {
-  description = "ARN of the target group"
-  value       = aws_lb_target_group.TG.arn
-}
+output "blue_arn" { value = aws_lb_target_group.blue.arn }
+output "green_arn" { value = aws_lb_target_group.green.arn }
 
-output "target_group_name" {
-  description = "Name of the target group"
-  value       = aws_lb_target_group.TG.name
-}
-
-output "target_group_id" {
-  description = "ID of the target group"
-  value       = aws_lb_target_group.TG.id
-}
+output "blue_name" { value = aws_lb_target_group.blue.name }
+output "green_name" { value = aws_lb_target_group.green.name }

@@ -55,3 +55,43 @@ variable "tags" {
   }
 }
 
+
+############################
+# ALB / Listener Settings
+############################
+variable "alb_internal" {
+  type    = bool
+  default = false
+}
+
+# If your alb module variable exists; otherwise keep module default
+variable "test_listener_port" {
+  type    = number
+  default = 9000
+}
+
+############################
+# ECS App
+############################
+variable "container_image" {
+  type = string
+}
+
+# If you want this configurable; otherwise hardcode in root
+variable "desired_count" {
+  type    = number
+  default = 2
+}
+
+############################
+# CodeDeploy Names (optional but recommended)
+############################
+variable "codedeploy_app_name" {
+  type    = string
+  default = "url-shortener-codedeploy"
+}
+
+variable "codedeploy_group_name" {
+  type    = string
+  default = "url-shortener-group"
+}

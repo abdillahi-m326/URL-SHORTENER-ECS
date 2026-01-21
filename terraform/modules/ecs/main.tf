@@ -46,18 +46,22 @@ resource "aws_ecs_task_definition" "task" {
 }
 
 resource "aws_ecs_service" "service" {
-  name                               = var.ecs_service_name
-  cluster                            = aws_ecs_cluster.ecs_cluster.id
-  task_definition                    = aws_ecs_task_definition.task.arn
-  launch_type                        = "FARGATE"
-  platform_version                   = "LATEST"
-  desired_count                      = var.desired_count
-  scheduling_strategy                = "REPLICA"
-  deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 100
-
+  name                = var.ecs_service_name
+  cluster             = aws_ecs_cluster.ecs_cluster.id
+  task_definition     = aws_ecs_task_definition.task.arn
+  launch_type         = "FARGATE"
+  platform_version    = "LATEST"
+  desired_count       = var.desired_count
+  scheduling_strategy = "REPLICA"
+  /*
+  # REQUIRED for CodeDeploy Blue/Green on ECS
+  deployment_controller {
+    type = "CODE_DEPLOY"
+  }
+**/
+  # Attach service to BLUE target group initially
   load_balancer {
-    target_group_arn = var.target_group_arn
+    target_group_arn = var.target_group_blue_arn
     container_name   = var.container_name
     container_port   = var.container_port
   }
@@ -67,4 +71,14 @@ resource "aws_ecs_service" "service" {
     subnets          = var.subnet_ids
     security_groups  = [var.tasks_security_group_id]
   }
+
+  lifecycle {
+    # CodeDeploy manages task sets / deployments; avoid Terraform fighting deployments
+    ignore_changes = [
+      task_definition,
+      load_balancer,
+      desired_count
+    ]
+  }
+
 }

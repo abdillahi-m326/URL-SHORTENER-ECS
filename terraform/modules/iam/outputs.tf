@@ -29,3 +29,7 @@ output "ecs_task_execution_role_id" {
   description = "ID of the ECS task execution IAM role."
   value       = aws_iam_role.ecs_task_execution_role.id
 }
+
+output "codedeploy_role_arn" {
+  value = aws_iam_role.codedeploy_role.arn
+}

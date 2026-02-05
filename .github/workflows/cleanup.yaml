@@ -1,0 +1,28 @@
+name: Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  destroy_workspace:
+    runs-on: ubuntu-latest
+    name: Destroy Terraform workspace
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: terraform destroy
+        uses: dflook/terraform-destroy@v2
+        id: first_try
+        continue-on-error: true
+        with:
+          path: my-terraform-config
+          workspace: ${{ github.head_ref }}
+
+      - name: Retry failed destroy
+        uses: dflook/terraform-destroy@v2
+        if: ${{ steps.first_try.outputs.failure-reason == 'destroy-failed' }}
+        with:
+          path: my-terraform-config
+          workspace: ${{ github.head_ref }}
